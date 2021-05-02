@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Say Random Things (out loud)</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤮</text></svg>">
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        button {
+            font-size: 5vh;
+            margin: 2vh;
+        }
+
+        #word {
+            display: none;
+            font-size: 5vh;
+            text-transform: capitalize;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <button>
+        🤮 Start Spewing Things
+    </button>
+    <div id="word"></div>
+    <script>
+        let index = 0;
+        let words = ["twelve", "purple", "dog"];
+
+        function go() {
+            let button = document.querySelector('button');
+            button.removeEventListener('click', go);
+            button.style.display = 'none';
+            document.getElementById('word').style.display = 'block';
+
+            sayWord();
+        }
+
+        function sayWord() {
+            let word = "";
+            fetch('https://random-words-api.vercel.app/word').then(response => response.json())
+                .then(data => {
+                    word = data[0].word;
+                })
+                .then(() => {
+                    document.getElementById('word').innerText = word;
+
+                    let speech = new SpeechSynthesisUtterance();
+                    speech.lang = "en-US";
+                    speech.text = word;
+                    speech.volume = 1;
+                    speech.rate = 0.8;
+                    speech.pitch = 1;
+
+                    window.speechSynthesis.speak(speech);
+
+                    index++;
+
+                    setTimeout(sayWord, 3500);
+
+                }).catch(() => {
+                    alert('Unable to retrieve random words.');
+                })
+        }
+
+        document.querySelector('button').addEventListener('click', go);
+    </script>
+</body>
+
+</html>
